@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MyShop — Demo Shopping Site</title>
+  <style>
+    /* Simple reset */
+    *{box-sizing:border-box;margin:0;padding:0;font-family:Inter, system-ui, Arial, sans-serif}
+    body{background:#fbf7ef;color:#233;}
+    header{display:flex;align-items:center;gap:16px;padding:14px 18px;background:linear-gradient(180deg,#fffdf6,#f6f4ee);position:sticky;top:0;z-index:10;border-bottom:1px solid #eee}
+    .logo{display:flex;align-items:center;gap:8px;font-weight:700}
+    .logo .mark{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#7bbf43,#2d8f3d);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800}
+    .header-actions{margin-left:auto;display:flex;gap:12px;align-items:center}
+    .icon{width:36px;height:36;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+    .search{flex:1;max-width:520px;display:flex;align-items:center;background:#fff;padding:8px;border-radius:10px;gap:8px;border:1px solid #eee}
+    .search input{border:0;outline:none;font-size:15px;background:transparent}
+
+    main{padding:18px}
+    .hero{display:flex;gap:18px;align-items:center;margin-bottom:18px}
+    .hero .banner{flex:1;height:120px;border-radius:12px;background-image:url('https://images.unsplash.com/photo-1585241936933-6d1f9d9b2b4f?auto=format&fit=crop&w=800&q=60');background-size:cover;background-position:center;box-shadow:inset 0 0 0 1000px rgba(255,255,255,0.05)}
+    .hero .small{width:140px;height:120px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;border:1px solid #eee}
+
+    .section-title{font-size:22px;margin:12px 0 10px 0;color:#234b2e;letter-spacing:1px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
+
+    .card{background:#fff;padding:10px;border-radius:12px;border:1px solid #eee;display:flex;flex-direction:column;gap:8px}
+    .card img{width:100%;height:140px;object-fit:cover;border-radius:8px}
+    .price-row{display:flex;align-items:center;gap:8px}
+    .price{font-weight:700;color:#2b7b2b}
+    .old{color:#9b9b9b;text-decoration:line-through;font-size:13px}
+    .tag{background:#6aa84f;color:#fff;padding:6px 8px;border-radius:999px;font-size:12px}
+    .card .btn{background:#3b6b2f;color:#fff;padding:10px;border-radius:8px;border:0;cursor:pointer}
+    .small-btn{background:#f3f3f3;color:#222;padding:8px;border-radius:8px;border:0;cursor:pointer}
+
+    .bottom-nav{position:fixed;left:10px;right:10px;bottom:10px;background:linear-gradient(90deg,#fff,#fff);border-radius:14px;padding:8px;display:flex;justify-content:space-around;align-items:center;box-shadow:0 6px 20px rgba(0,0,0,0.08)}
+    .nav-item{display:flex;flex-direction:column;align-items:center;font-size:12px;color:#6b6b6b}
+
+    .whatsapp{position:fixed;right:18px;bottom:88px;background:linear-gradient(135deg,#00bfa5,#25d366);width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(37,211,102,0.2);cursor:pointer}
+
+    /* Admin modal */
+    .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;z-index:50}
+    .modal{background:#fff;padding:18px;border-radius:12px;width:92%;max-width:520px}
+    label{font-size:13px;color:#333}
+    input[type=text], input[type=password], input[type=number]{width:100%;padding:10px;margin-top:6px;margin-bottom:12px;border-radius:8px;border:1px solid #ddd}
+
+    .admin-controls{display:flex;flex-direction:column;gap:10px}
+    .notice{font-size:13px;color:#666}
+
+    /* Cart drawer */
+    .cart-drawer{position:fixed;right:12px;top:70px;width:320px;max-width:92%;background:#fff;border-radius:12px;padding:12px;box-shadow:0 10px 30px rgba(0,0,0,0.12);display:none;z-index:60}
+    .cart-item{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0f0}
+    .cart-item img{width:56px;height:56px;object-fit:cover;border-radius:8px}
+
+    footer{margin-top:40px;padding:30px;text-align:center;color:#7a7a7a}
+
+    @media(min-width:900px){.grid{grid-template-columns:repeat(4,1fr)}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo"><div class="mark">M</div><div>My<span style="color:#4b8b3b">Shop</span></div></div>
+    <div class="search" role="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.35-4.35" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <input id="searchInput" placeholder="Product search..." />
+    </div>
+
+    <div class="header-actions">
+      <button class="icon" id="offersBtn" title="Offers">% OFF</button>
+      <button class="icon" id="accountBtn" title="Account">👤</button>
+      <button class="icon" id="cartBtn" title="Cart">🛒 <span id="cartCount" style="font-size:12px;margin-left:6px;color:#2b7b2b">0</span></button>
+      <button class="icon" id="adminOpen">⚙️</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="hero">
+      <div class="banner"></div>
+      <div class="small">Pure<br>Desi</div>
+    </div>
+
+    <div>
+      <div class="section-title">Kasutam's Winning Choices</div>
+      <div id="products" class="grid"></div>
+    </div>
+
+    <footer>Demo Shopping Site • Built as static template. Change the admin password in the admin panel.</footer>
+  </main>
+
+  <div class="whatsapp" id="whatsBtn" title="Chat on WhatsApp">💬</div>
+
+  <div class="bottom-nav">
+    <div class="nav-item">🏠<div>Home</div></div>
+    <div class="nav-item">🏷️<div>Offers</div></div>
+    <div class="nav-item">👤<div>Account</div></div>
+    <div class="nav-item" id="cartNav">🛒<div>Cart (<span id="cartNavCount">0</span>)</div></div>
+  </div>
+
+  <!-- Cart drawer -->
+  <div class="cart-drawer" id="cartDrawer">
+    <h3>Your Cart</h3>
+    <div id="cartItems"></div>
+    <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center">
+      <strong>Total: ₹<span id="cartTotal">0</span></strong>
+      <button id="checkoutBtn" class="btn small-btn">Checkout</button>
+    </div>
+  </div>
+
+  <!-- Admin Modal -->
+  <div class="modal-bg" id="modalBg">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div id="loginBox">
+        <h3>Admin Login</h3>
+        <div class="notice">Default admin: <strong>admin</strong> / <strong>password123</strong> (change after login)</div>
+        <label>Username</label>
+        <input id="adminUser" type="text" value="admin" />
+        <label>Password</label>
+        <input id="adminPass" type="password" value="password123" />
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button id="closeModal" class="small-btn">Close</button>
+          <button id="doLogin" class="btn">Login</button>
+        </div>
+      </div>
+
+      <div id="adminPanel" style="display:none">
+        <h3>Admin Panel</h3>
+        <div class="admin-controls">
+          <label>Set new admin password</label>
+          <input id="newPass" type="password" placeholder="New password (leave blank to keep)" />
+
+          <label>New Product Title</label>
+          <input id="pTitle" type="text" placeholder="A2 Desi Cow Ghee 500ml" />
+          <label>Price (₹)</label>
+          <input id="pPrice" type="number" placeholder="1190" />
+          <label>Old Price (₹)</label>
+          <input id="pOld" type="number" placeholder="1690" />
+          <label>Image URL</label>
+          <input id="pImg" type="text" placeholder="https://...jpg" />
+          <label>Badge (eg SAVE 20%)</label>
+          <input id="pBadge" type="text" placeholder="SAVE 29%" />
+
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button id="logoutAdmin" class="small-btn">Logout</button>
+            <button id="addProd" class="btn">Add Product</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    /* ====== Data / Storage helpers ====== */
+    const STORAGE_PRODUCTS = 'myshop_products_v1';
+    const STORAGE_ADMIN = 'myshop_admin_v1';
+    const STORAGE_CART = 'myshop_cart_v1';
+
+    const defaultProducts = [
+      {id:1,title:'A2 Desi Cow Bilona Ghee 500ml',price:1190,old:1690,img:'https://i.imgur.com/3aX1YbG.jpg',badge:'You Save ₹500.00'},
+      {id:2,title:'A2 Desi Cow Ghee 1L',price:2190,old:2990,img:'https://i.imgur.com/3aX1YbG.jpg',badge:'SAVE 30%'},
+      {id:3,title:'Desi Curd 1kg',price:290,old:490,img:'https://i.imgur.com/8Km9tLL.jpg',badge:'Save ₹200.00'},
+      {id:4,title:'Ghee Combo Pack',price:2280,old:3190,img:'https://i.imgur.com/3aX1YbG.jpg',badge:'SAVE 29%'}
+    ];
+
+    function loadProducts(){
+      const raw = localStorage.getItem(STORAGE_PRODUCTS);
+      if(!raw){localStorage.setItem(STORAGE_PRODUCTS, JSON.stringify(defaultProducts));return defaultProducts}
+      try{return JSON.parse(raw)}catch(e){localStorage.setItem(STORAGE_PRODUCTS, JSON.stringify(defaultProducts));return defaultProducts}
+    }
+    function saveProducts(arr){localStorage.setItem(STORAGE_PRODUCTS, JSON.stringify(arr))}
+
+    function loadAdmin(){
+      const raw = localStorage.getItem(STORAGE_ADMIN);
+      if(!raw){const admin={username:'admin',password:'password123'};localStorage.setItem(STORAGE_ADMIN,JSON.stringify(admin));return admin}
+      return JSON.parse(raw);
+    }
+    function saveAdmin(a){localStorage.setItem(STORAGE_ADMIN,JSON.stringify(a))}
+
+    function loadCart(){
+      const raw = localStorage.getItem(STORAGE_CART);
+      if(!raw){localStorage.setItem(STORAGE_CART, JSON.stringify([]));return []}
+      return JSON.parse(raw);
+    }
+    function saveCart(c){localStorage.setItem(STORAGE_CART, JSON.stringify(c))}
+
+    /* ====== Rendering ====== */
+    const productsEl = document.getElementById('products');
+    const cartCountEls = [document.getElementById('cartCount'), document.getElementById('cartNavCount')];
+
+    function renderProducts(filter=''){
+      const items = loadProducts().filter(p=>p.title.toLowerCase().includes(filter.toLowerCase()));
+      productsEl.innerHTML = items.map(p=>`<div class="card" data-id="${p.id}">`+
+        `${p.badge?`<div style="position:absolute;margin-top:-6px;margin-left:6px;background:#3b6b2f;color:#fff;padding:6px 8px;border-radius:8px;font-size:12px">${p.badge}</div>`:''}`+
+        `<img src="${p.img}" alt="${p.title}" loading="lazy"/>`+
+        `<div style="font-weight:600">${p.title}</div>`+
+        `<div class="price-row"><div class="price">₹${p.price}</div><div class="old">${p.old?('₹'+p.old):''}</div></div>`+
+        `<div style="display:flex;gap:8px"><button class="btn" onclick="addToCart(${p.id})">ADD TO CART</button><button class="small-btn" onclick="quickAdd(${p.id})">QUICK ADD</button></div>`+
+        `</div>`).join('');
+    }
+
+    function renderCart(){
+      const c = loadCart();
+      cartCountEls.forEach(el=>el.textContent = c.reduce((s,i)=>s+i.qty,0));
+      const drawer = document.getElementById('cartDrawer');
+      const itemsEl = document.getElementById('cartItems');
+      if(c.length===0){itemsEl.innerHTML='<div style="padding:12px;color:#666">Cart is empty</div>';document.getElementById('cartTotal').textContent='0';return}
+      const products = loadProducts();
+      itemsEl.innerHTML = c.map(ci=>{
+        const p = products.find(x=>x.id===ci.id)||{};
+        return `<div class="cart-item"><img src="${p.img||''}"/><div style="flex:1"><div style="font-weight:600">${p.title||''}</div><div>₹${p.price} x ${ci.qty}</div></div><div style="display:flex;flex-direction:column;gap:6px"><button onclick="changeQty(${ci.id},1)" class="small-btn">+</button><button onclick="changeQty(${ci.id},-1)" class="small-btn">-</button></div></div>`
+      }).join('');
+      const total = c.reduce((s,ci)=>{const p=loadProducts().find(x=>x.id===ci.id);return s + (p? p.price*ci.qty:0)},0);
+      document.getElementById('cartTotal').textContent = total;
+    }
+
+    /* ====== Cart actions ====== */
+    function addToCart(id){
+      const cart = loadCart();
+      const found = cart.find(i=>i.id===id);
+      if(found){found.qty+=1}else{cart.push({id,qty:1})}
+      saveCart(cart);renderCart();
+      alert('Product added to cart');
+    }
+    function quickAdd(id){addToCart(id)}
+    function changeQty(id,delta){
+      let cart = loadCart();
+      const idx = cart.findIndex(i=>i.id===id);
+      if(idx===-1) return;
+      cart[idx].qty += delta;
+      if(cart[idx].qty<=0) cart.splice(idx,1);
+      saveCart(cart);renderCart();
+    }
+
+    /* ====== Admin logic ====== */
+    const modalBg = document.getElementById('modalBg');
+    const adminOpen = document.getElementById('adminOpen');
+    const closeModal = document.getElementById('closeModal');
+    const doLogin = document.getElementById('doLogin');
+    const loginBox = document.getElementById('loginBox');
+    const adminPanel = document.getElementById('adminPanel');
+    const addProdBtn = document.getElementById('addProd');
+    const logoutAdmin = document.getElementById('logoutAdmin');
+
+    adminOpen.addEventListener('click', ()=>{modalBg.style.display='flex'});
+    closeModal.addEventListener('click', ()=>{modalBg.style.display='none'});
+
+    doLogin.addEventListener('click', ()=>{
+      const user = document.getElementById('adminUser').value;
+      const pass = document.getElementById('adminPass').value;
+      const admin = loadAdmin();
+      if(user===admin.username && pass===admin.password){
+        loginBox.style.display='none';adminPanel.style.display='block';
+      } else alert('Invalid admin credentials');
+    });
+
+    addProdBtn.addEventListener('click', ()=>{
+      const t = document.getElementById('pTitle').value.trim();
+      const pr = parseInt(document.getElementById('pPrice').value)||0;
+      const old = parseInt(document.getElementById('pOld').value)||0;
+      const img = document.getElementById('pImg').value.trim() || 'https://via.placeholder.com/400x300?text=Product';
+      const badge = document.getElementById('pBadge').value.trim();
+      if(!t||!pr){alert('Please provide title and price');return}
+      const arr = loadProducts();
+      const id = (arr.reduce((m,x)=>Math.max(m,x.id),0)||0)+1;
+      arr.unshift({id,title:t,price:pr,old:old,img,badge});
+      saveProducts(arr);
+      renderProducts(document.getElementById('searchInput').value||'');
+      alert('Product added');
+      document.getElementById('pTitle').value='';document.getElementById('pPrice').value='';document.getElementById('pOld').value='';document.getElementById('pImg').value='';document.getElementById('pBadge').value='';
+    });
+
+    logoutAdmin.addEventListener('click', ()=>{loginBox.style.display='block';adminPanel.style.display='none';modalBg.style.display='none'});
+
+    document.getElementById('newPass').addEventListener('blur', ()=>{
+      const v = document.getElementById('newPass').value;
+      if(!v) return;
+      const a = loadAdmin(); a.password=v; saveAdmin(a); alert('Admin password updated'); document.getElementById('newPass').value='';
+    });
+
+    /* ====== Cart drawer toggle ====== */
+    document.getElementById('cartBtn').addEventListener('click', ()=>{const d=document.getElementById('cartDrawer'); d.style.display = d.style.display==='block'?'none':'block'; renderCart();});
+    document.getElementById('cartNav').addEventListener('click', ()=>{const d=document.getElementById('cartDrawer'); d.style.display='block'; renderCart();});
+
+    document.getElementById('checkoutBtn').addEventListener('click', ()=>{alert('Demo checkout — integrate payment gateway later'); localStorage.removeItem(STORAGE_CART); renderCart();});
+
+    /* ====== WhatsApp action ====== */
+    document.getElementById('whatsBtn').addEventListener('click', ()=>{const text = encodeURIComponent('Hello! I want to ask about your products.'); window.open('https://wa.me/?text='+text,'_blank')});
+
+    /* ====== Search ====== */
+    document.getElementById('searchInput').addEventListener('input',(e)=>{renderProducts(e.target.value)});
+
+    /* ====== Init ====== */
+    (function init(){
+      // ensure defaults
+      loadProducts(); loadAdmin(); renderProducts(); renderCart();
+    })();
+
+    // expose some functions for inline onclicks
+    window.addToCart = addToCart; window.quickAdd = quickAdd; window.changeQty = changeQty;
+  </script>
+</body>
+</html>
